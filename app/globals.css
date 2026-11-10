@@ -51,25 +51,29 @@ em, .it { font-family: var(--serif); font-style: italic; }
 }
 .demo { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--cautivar); }
 
-.nav { display: flex; gap: 22px; }
-.nav a {
-  display: flex; align-items: baseline; gap: 6px; text-decoration: none;
-  font-size: 13px; color: var(--muted); padding: 6px 0; border-bottom: 1.5px solid transparent;
-  transition: color .25s var(--ease), border-color .25s var(--ease);
+/* Navegación inferior: barra flotante, en escritorio y en el celular */
+.nav {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 10;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  width: min(560px, calc(100% - 24px));
+  display: flex; justify-content: space-between; gap: 4px; padding: 6px;
+  background: rgba(17, 17, 16, .92); backdrop-filter: blur(14px);
+  border-radius: 999px; box-shadow: 0 14px 40px -18px rgba(40, 30, 20, .55);
 }
-.nav a small { font-size: 10px; letter-spacing: .1em; color: var(--tan); }
-.nav a:hover { color: var(--ink); }
-.nav a[aria-current='page'] { color: var(--ink); border-color: var(--gold); }
+.nav a {
+  flex: 1; display: flex; align-items: baseline; justify-content: center; gap: 6px;
+  text-decoration: none; font-size: 13px; color: #b8b2a6;
+  padding: 10px 12px; border-radius: 999px;
+  transition: background .3s var(--ease), color .3s var(--ease);
+}
+.nav a small { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--tan); }
+.nav a:hover { color: var(--peach); }
+.nav a[aria-current='page'] { background: var(--peach); color: var(--ink); }
+.nav a[aria-current='page'] small { color: var(--conectar); }
 
-@media (max-width: 720px) {
-  .top .nav {
-    position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 10;
-    justify-content: space-around; gap: 0; padding: 6px;
-    background: rgba(17, 17, 16, .92); backdrop-filter: blur(14px); border-radius: 999px;
-  }
-  .top .nav a { color: #b8b2a6; padding: 9px 12px; border: 0; border-radius: 999px; font-size: 12.5px; }
-  .top .nav a small { display: none; }
-  .top .nav a[aria-current='page'] { background: var(--peach); color: var(--ink); }
+@media (max-width: 520px) {
+  .nav a { font-size: 12.5px; padding: 9px 6px; }
+  .nav a small { display: none; }
   .mark { font-size: 22px; }
 }
 
