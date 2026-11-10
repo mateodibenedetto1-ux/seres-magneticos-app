@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'Magnéticos',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f4f2ee',
-    theme_color: '#5b3a7a',
+    background_color: '#f2f2e8',
+    theme_color: '#f2f2e8',
     icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' }],
   };
 }

@@ -12,7 +12,8 @@ export default async function InformePage({ searchParams }: { searchParams: Prom
 
   return (
     <Shell active="/informe">
-      <h1 className="title">{actual?.titulo ?? 'Informe semanal'}</h1>
+      <p className="eyebrow">{actual?.tipo ?? 'Informe semanal'}</p>
+      <h1 className="title">{actual?.titulo ?? <>Lo que <em>funcionó</em></>}</h1>
       <p className="lead">Llega cada viernes a las 11:00: qué funcionó, referentes y mentees.</p>
 
       {!actual && <p className="empty">El primer informe llega el viernes a las 11:00.</p>}
@@ -29,7 +30,7 @@ export default async function InformePage({ searchParams }: { searchParams: Prom
 
       {lista.length > 1 && (
         <section className="section">
-          <h2>Anteriores</h2>
+          <h2><span className="n">01</span>Anteriores</h2>
           <ul className="list">
             {lista.filter((i) => i.id !== actual?.id).map((i) => (
               <li key={i.id}>

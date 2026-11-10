@@ -210,7 +210,7 @@ export async function bloques(pageId: string): Promise<{ tipo: string; texto: st
 const DEMO_PROPUESTAS: Pieza[] = [
   {
     id: 'demo-1', url: '#', titulo: 'Tu sistema nervioso decide antes que tu mente', formato: 'Reel', intencion: 'Cautivar',
-    hook: 'Tu cuerpo ya eligió antes de que vos lo pensaras.', angulo: 'Dato científico → resonancia espiritual → una práctica de 30 segundos.',
+    hook: 'Tu cuerpo ya eligió antes de que tú lo pensaras.', angulo: 'Dato científico → resonancia espiritual → una práctica de 30 segundos.',
     propuesta: 'Propuesta', estado: null, comentario: '', semana: null,
   },
   {

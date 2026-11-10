@@ -27,11 +27,11 @@ export async function decidirPieza(_: unknown, form: FormData) {
   const decision = String(form.get('decision') ?? '') as Exclude<Decision, 'Propuesta'>;
   const comentario = String(form.get('comentario') ?? '');
   if (!id || !['Aprobada', 'Ajustar', 'Descartada'].includes(decision)) return { error: 'Falta la decisión.' };
-  if (decision === 'Ajustar' && !comentario.trim()) return { error: 'Contale a la cofundadora qué ajustar.' };
+  if (decision === 'Ajustar' && !comentario.trim()) return { error: 'Cuéntale a la cofundadora qué ajustar.' };
   try {
     await decidir(id, decision, comentario);
   } catch (e) {
-    return { error: 'No se pudo guardar en Notion. Probá de nuevo.' };
+    return { error: 'No se pudo guardar en Notion. Inténtalo de nuevo.' };
   }
   revalidatePath('/lunes');
   revalidatePath('/');
@@ -41,11 +41,11 @@ export async function decidirPieza(_: unknown, form: FormData) {
 export async function nuevaIdea(_: unknown, form: FormData) {
   const idea = String(form.get('idea') ?? '').trim();
   const detalle = String(form.get('detalle') ?? '').trim();
-  if (!idea) return { error: 'Escribí la idea, aunque sea en una línea.' };
+  if (!idea) return { error: 'Escribe la idea, aunque sea en una línea.' };
   try {
     await guardarIdea(idea, detalle);
   } catch {
-    return { error: 'No se pudo guardar en Notion. Probá de nuevo.' };
+    return { error: 'No se pudo guardar en Notion. Inténtalo de nuevo.' };
   }
   revalidatePath('/ideas');
   revalidatePath('/');

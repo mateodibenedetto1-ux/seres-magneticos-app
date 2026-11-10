@@ -26,7 +26,7 @@ export function PropuestaCard({ p }: { p: Pieza }) {
       <h3>{p.titulo}</h3>
       {p.hook && <p className="hook">“{p.hook}”</p>}
       {p.angulo && <p className="angulo">{p.angulo}</p>}
-      {p.propuesta === 'Ajustar' && p.comentario && <p className="nota">Tu nota: {p.comentario}</p>}
+      {p.propuesta === 'Ajustar' && p.comentario && <p className="nota"><em>Tu nota:</em> {p.comentario}</p>}
 
       {hecho ? (
         <p className="ok">{LABEL[hecho]}</p>

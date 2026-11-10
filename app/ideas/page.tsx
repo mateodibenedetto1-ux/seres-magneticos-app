@@ -11,11 +11,12 @@ export default async function Ideas() {
   const ideas = await ideasRecientes();
   return (
     <Shell active="/ideas">
-      <h1 className="title">Bandeja de ideas</h1>
-      <p className="lead">Soltá acá lo que se te ocurra. Cada noche se convierte en material para las propuestas.</p>
+      <p className="eyebrow">Bandeja de ideas</p>
+      <h1 className="title">Suelta la <em>idea</em></h1>
+      <p className="lead">Escribe aquí lo que se te ocurra. Cada noche se convierte en material para tus propuestas.</p>
       <IdeaForm />
       <section className="section">
-        <h2>Últimas ideas</h2>
+        <h2><span className="n">01</span>Últimas ideas</h2>
         {ideas.length === 0 ? (
           <p className="empty">Todavía no hay ideas.</p>
         ) : (

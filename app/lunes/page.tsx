@@ -19,12 +19,13 @@ export default async function Lunes() {
 
   return (
     <Shell active="/lunes">
-      <h1 className="title">Propuestas de la semana</h1>
-      <p className="lead">Aprobá lo que querés que se produzca. Con “Ajustar” la cofundadora la reescribe y vuelve acá.</p>
+      <p className="eyebrow">Lunes de decisión</p>
+      <h1 className="title">Propuestas de la <em>semana</em></h1>
+      <p className="lead">Aprueba lo que quieres que se produzca. Con “Ajustar”, la cofundadora la reescribe y vuelve aquí.</p>
       {piezas.length === 0 && <p className="empty">Todo decidido. Las próximas propuestas llegan el lunes a las 8:00.</p>}
-      {claves.map((k) => (
+      {claves.map((k, i) => (
         <section key={k} className="section">
-          <h2>{NOMBRE[k] ?? k} · {grupos.get(k)!.length}</h2>
+          <h2><span className="n">0{i + 1}</span>{NOMBRE[k] ?? k} · {grupos.get(k)!.length}</h2>
           {grupos.get(k)!.map((p) => <PropuestaCard key={p.id} p={p} />)}
         </section>
       ))}
