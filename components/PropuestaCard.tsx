@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { decidirPieza } from '@/lib/actions';
 import type { Pieza } from '@/lib/notion';
 
@@ -9,6 +9,11 @@ const LABEL: Record<string, string> = { Aprobada: 'Aprobada', Ajustar: 'Enviada 
 export function PropuestaCard({ p }: { p: Pieza }) {
   const [state, action, pending] = useActionState(decidirPieza, null);
   const [ajustando, setAjustando] = useState(false);
+  // La decisión va en un campo oculto: se fija en el click, antes de que el formulario se envíe.
+  const decision = useRef<HTMLInputElement>(null);
+  const elegir = (d: string) => () => {
+    if (decision.current) decision.current.value = d;
+  };
   const hecho = state && 'ok' in state ? state.ok : null;
 
   return (
@@ -28,6 +33,7 @@ export function PropuestaCard({ p }: { p: Pieza }) {
       ) : (
         <form action={action}>
           <input type="hidden" name="id" value={p.id} />
+          <input type="hidden" name="decision" ref={decision} defaultValue="" />
           {ajustando && (
             <div className="field">
               <textarea name="comentario" rows={3} placeholder="¿Qué le cambiarías?" autoFocus />
@@ -36,14 +42,16 @@ export function PropuestaCard({ p }: { p: Pieza }) {
           <div className="actions">
             {ajustando ? (
               <>
-                <button className="btn primary" name="decision" value="Ajustar" disabled={pending}>Enviar ajuste</button>
+                <button type="submit" className="btn primary" onClick={elegir('Ajustar')} disabled={pending}>Enviar ajuste</button>
                 <button type="button" className="btn ghost" onClick={() => setAjustando(false)}>Cancelar</button>
               </>
             ) : (
               <>
-                <button className="btn primary" name="decision" value="Aprobada" disabled={pending}>Aprobar</button>
+                <button type="submit" className="btn primary" onClick={elegir('Aprobada')} disabled={pending}>
+                  {pending ? 'Guardando…' : 'Aprobar'}
+                </button>
                 <button type="button" className="btn" onClick={() => setAjustando(true)} disabled={pending}>Ajustar</button>
-                <button className="btn ghost" name="decision" value="Descartada" disabled={pending}>Descartar</button>
+                <button type="submit" className="btn ghost" onClick={elegir('Descartada')} disabled={pending}>Descartar</button>
               </>
             )}
           </div>
