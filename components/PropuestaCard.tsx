@@ -1,0 +1,55 @@
+'use client';
+
+import { useActionState, useState } from 'react';
+import { decidirPieza } from '@/lib/actions';
+import type { Pieza } from '@/lib/notion';
+
+const LABEL: Record<string, string> = { Aprobada: 'Aprobada', Ajustar: 'Enviada a ajustar', Descartada: 'Descartada' };
+
+export function PropuestaCard({ p }: { p: Pieza }) {
+  const [state, action, pending] = useActionState(decidirPieza, null);
+  const [ajustando, setAjustando] = useState(false);
+  const hecho = state && 'ok' in state ? state.ok : null;
+
+  return (
+    <article className={`card${hecho ? ' done' : ''}`}>
+      <div className="meta">
+        {p.formato && <span className="tag">{p.formato}</span>}
+        {p.intencion && <span className={`tag ${p.intencion}`}>{p.intencion}</span>}
+        {p.propuesta === 'Ajustar' && <span className="tag Ajustar">Vuelve ajustada</span>}
+      </div>
+      <h3>{p.titulo}</h3>
+      {p.hook && <p className="hook">“{p.hook}”</p>}
+      {p.angulo && <p className="angulo">{p.angulo}</p>}
+      {p.propuesta === 'Ajustar' && p.comentario && <p className="nota">Tu nota: {p.comentario}</p>}
+
+      {hecho ? (
+        <p className="ok">{LABEL[hecho]}</p>
+      ) : (
+        <form action={action}>
+          <input type="hidden" name="id" value={p.id} />
+          {ajustando && (
+            <div className="field">
+              <textarea name="comentario" rows={3} placeholder="¿Qué le cambiarías?" autoFocus />
+            </div>
+          )}
+          <div className="actions">
+            {ajustando ? (
+              <>
+                <button className="btn primary" name="decision" value="Ajustar" disabled={pending}>Enviar ajuste</button>
+                <button type="button" className="btn ghost" onClick={() => setAjustando(false)}>Cancelar</button>
+              </>
+            ) : (
+              <>
+                <button className="btn primary" name="decision" value="Aprobada" disabled={pending}>Aprobar</button>
+                <button type="button" className="btn" onClick={() => setAjustando(true)} disabled={pending}>Ajustar</button>
+                <button className="btn ghost" name="decision" value="Descartada" disabled={pending}>Descartar</button>
+              </>
+            )}
+          </div>
+          {state && 'error' in state && <p className="error">{state.error}</p>}
+        </form>
+      )}
+    </article>
+  );
+}
