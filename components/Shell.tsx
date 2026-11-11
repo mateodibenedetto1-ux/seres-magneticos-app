@@ -4,6 +4,7 @@ import { isDemo } from '@/lib/notion';
 const LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/lunes', label: 'Propuestas' },
+  { href: '/produccion', label: 'Producción' },
   { href: '/ideas', label: 'Ideas' },
   { href: '/informe', label: 'Informe' },
 ];

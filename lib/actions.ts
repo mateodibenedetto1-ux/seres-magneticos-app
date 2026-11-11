@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { COOKIE, firma } from './session';
-import { decidir, guardarIdea, type Decision } from './notion';
+import { decidir, guardarIdea, moverEstado, PASOS_VAL, type Decision } from './notion';
 
 export async function entrar(_: unknown, form: FormData) {
   const pass = String(form.get('password') ?? '');
@@ -50,4 +50,19 @@ export async function nuevaIdea(_: unknown, form: FormData) {
   revalidatePath('/ideas');
   revalidatePath('/');
   return { ok: true };
+}
+
+export async function moverPieza(_: unknown, form: FormData) {
+  const id = String(form.get('id') ?? '');
+  const estado = String(form.get('estado') ?? '');
+  if (!id || !(PASOS_VAL as readonly string[]).includes(estado)) return { error: 'Falta el estado.' };
+  try {
+    await moverEstado(id, estado as (typeof PASOS_VAL)[number]);
+  } catch {
+    return { error: 'No se pudo guardar en Notion. Inténtalo de nuevo.' };
+  }
+  revalidatePath('/produccion');
+  revalidatePath(`/pieza/${id}`);
+  revalidatePath('/');
+  return { ok: estado };
 }

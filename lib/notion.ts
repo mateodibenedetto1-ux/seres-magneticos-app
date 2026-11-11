@@ -70,6 +70,7 @@ export type Pieza = {
   estado: string | null;
   comentario: string;
   semana: string | null;
+  publicacion: string | null;
 };
 
 function toPieza(p: any): Pieza {
@@ -85,6 +86,7 @@ function toPieza(p: any): Pieza {
     estado: sel(p, 'Estado'),
     comentario: rich(p, 'Comentario de Val'),
     semana: date(p, 'Semana de propuesta'),
+    publicacion: date(p, 'Fecha Posteo'),
   };
 }
 
@@ -105,7 +107,7 @@ export async function propuestasPendientes(): Promise<Pieza[]> {
 
 /** Lo aprobado que todavía no se publicó: lo que la Productora tiene en curso. */
 export async function enProduccion(): Promise<Pieza[]> {
-  if (isDemo()) return [];
+  if (isDemo()) return DEMO_PRODUCCION;
   const rows = await queryAll(DB.contenido(), {
     filter: {
       and: [
@@ -131,6 +133,28 @@ export async function decidir(id: string, decision: Exclude<Decision, 'Propuesta
   }
   if (decision === 'Aprobada') properties['Estado'] = { status: { name: 'Guionar' } };
   await api(`pages/${id}`, { method: 'PATCH', body: { properties } });
+}
+
+/** Una pieza con todo su contenido (el guion vive en el cuerpo de la página). */
+export async function pieza(id: string): Promise<{ pieza: Pieza; guion: { tipo: string; texto: string }[] } | null> {
+  if (isDemo()) {
+    const p = [...DEMO_PROPUESTAS, ...DEMO_PRODUCCION].find((x) => x.id === id);
+    return p ? { pieza: p, guion: p.estado ? DEMO_GUION : [] } : null;
+  }
+  try {
+    const page = await api(`pages/${id}`);
+    return { pieza: toPieza(page), guion: await bloques(id) };
+  } catch {
+    return null;
+  }
+}
+
+/** Estados de producción que Val puede mover desde la app. Nunca se borra nada. */
+export const PASOS_VAL = ['Grabar', 'Material Listo', 'Revisión', 'Publicado'] as const;
+
+export async function moverEstado(id: string, estado: (typeof PASOS_VAL)[number]) {
+  if (isDemo()) return;
+  await api(`pages/${id}`, { method: 'PATCH', body: { properties: { Estado: { status: { name: estado } } } } });
 }
 
 /* ---------------- Bandeja de ideas ---------------- */
@@ -211,18 +235,39 @@ const DEMO_PROPUESTAS: Pieza[] = [
   {
     id: 'demo-1', url: '#', titulo: 'Tu sistema nervioso decide antes que tu mente', formato: 'Reel', intencion: 'Cautivar',
     hook: 'Tu cuerpo ya eligió antes de que tú lo pensaras.', angulo: 'Dato científico → resonancia espiritual → una práctica de 30 segundos.',
-    propuesta: 'Propuesta', estado: null, comentario: '', semana: null,
+    propuesta: 'Propuesta', estado: null, comentario: '', semana: null, publicacion: null,
   },
   {
     id: 'demo-2', url: '#', titulo: 'Secuencia: lo que nadie te dice de la confianza', formato: 'Historias', intencion: 'Conectar',
     hook: 'Encuesta: ¿te cuesta más empezar o sostener?', angulo: '7 historias: pregunta → historia personal → caja de preguntas → palabra clave CONFIANZA por DM.',
-    propuesta: 'Propuesta', estado: null, comentario: '', semana: null,
+    propuesta: 'Propuesta', estado: null, comentario: '', semana: null, publicacion: null,
   },
   {
     id: 'demo-3', url: '#', titulo: '5 señales de que estás lista para Magna', formato: 'Carrusel', intencion: 'Convertir',
     hook: 'Si te ves en 3 de estas 5, no es casualidad.', angulo: 'Portada + 5 señales + testimonio + CTA a la landing.',
-    propuesta: 'Ajustar', estado: null, comentario: 'Menos técnico en la señal 4.', semana: null,
+    propuesta: 'Ajustar', estado: null, comentario: 'Menos técnico en la señal 4.', semana: null, publicacion: null,
   },
+];
+
+const DEMO_PRODUCCION: Pieza[] = [
+  {
+    id: 'demo-4', url: '#', titulo: 'La versión de mí que cobraba 200 dólares', formato: 'Reel', intencion: 'Conectar',
+    hook: 'La versión de mí que cobraba 200 dólares murió el día que me animé a cobrar lo que valía.',
+    angulo: 'Muerte y Renacimiento. Cierra en "La evidencia no crea la decisión; la decisión crea la evidencia".',
+    propuesta: 'Aprobada', estado: 'Grabar', comentario: '', semana: null, publicacion: null,
+  },
+];
+
+const DEMO_GUION = [
+  { tipo: 'heading_3', texto: 'Hook (0–3 s)' },
+  { tipo: 'paragraph', texto: 'La versión de mí que cobraba 200 dólares por todo lo que sabía murió el día que me animé a cobrar lo que valía.' },
+  { tipo: 'heading_3', texto: 'Contexto' },
+  { tipo: 'paragraph', texto: 'Durante años expliqué mi precio. Sumaba sesiones, bonos, llamadas extra, como si tuviera que justificar que merecía cobrar. Y cada vez que alguien me decía "lo voy a pensar", sentía el pecho apretado.' },
+  { tipo: 'paragraph', texto: 'Un día decidí dejar de explicarlo. Diseñé una transformación que valía ese precio y pasé de una oferta de 200 dólares a un paquete de 2.200.' },
+  { tipo: 'heading_3', texto: 'Moraleja' },
+  { tipo: 'paragraph', texto: 'La evidencia no crea la decisión. La decisión crea la evidencia.' },
+  { tipo: 'heading_3', texto: 'CTA' },
+  { tipo: 'paragraph', texto: 'Comenta FUNDADORA si ya estás lista para dejar de explicar tu precio.' },
 ];
 
 const DEMO_IDEAS: Idea[] = [
