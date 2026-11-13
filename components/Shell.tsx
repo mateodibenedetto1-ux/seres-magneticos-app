@@ -5,14 +5,14 @@ const LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/lunes', label: 'Propuestas' },
   { href: '/produccion', label: 'Producción' },
-  { href: '/ideas', label: 'Ideas' },
+  { href: '/ideas', label: 'Bóveda' },
   { href: '/informe', label: 'Informe' },
 ];
 
-export function Shell({ active, children }: { active: string; children: React.ReactNode }) {
+export function Shell({ active, children, ancho = false }: { active: string; children: React.ReactNode; ancho?: boolean }) {
   return (
     <>
-      <main className="shell">
+      <main className={`shell${ancho ? ' ancho' : ''}`}>
         <header className="top">
           <Link href="/" className="mark">Seres Magnéticos</Link>
           {isDemo() && <span className="demo">Modo demo · sin Notion conectado</span>}

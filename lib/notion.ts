@@ -133,6 +133,34 @@ export async function decidir(id: string, decision: Exclude<Decision, 'Propuesta
   }
   if (decision === 'Aprobada') properties['Estado'] = { status: { name: 'Guionar' } };
   await api(`pages/${id}`, { method: 'PATCH', body: { properties } });
+  if (decision === 'Ajustar') await avisarAjuste(id, comentario).catch(() => {});
+}
+
+/**
+ * Aviso del ajuste: un comentario en la página de Notion que menciona a quien opera el sistema,
+ * así le llega la notificación de Notion (app y correo). Si falla, la decisión igual queda guardada.
+ * Configuración: NOTION_AVISAR_USER_ID (ID de usuario de Notion) o NOTION_AVISAR_EMAIL.
+ */
+async function quienAvisar(): Promise<string | null> {
+  if (process.env.NOTION_AVISAR_USER_ID) return process.env.NOTION_AVISAR_USER_ID;
+  const email = process.env.NOTION_AVISAR_EMAIL?.toLowerCase();
+  if (!email) return null;
+  let cursor: string | undefined;
+  do {
+    const json = await api(`users?page_size=100${cursor ? `&start_cursor=${cursor}` : ''}`);
+    const u = json.results.find((x: any) => x.person?.email?.toLowerCase() === email);
+    if (u) return u.id;
+    cursor = json.has_more ? json.next_cursor : undefined;
+  } while (cursor);
+  return null;
+}
+
+async function avisarAjuste(id: string, comentario: string) {
+  const user = await quienAvisar();
+  const rich_text: unknown[] = [];
+  if (user) rich_text.push({ type: 'mention', mention: { user: { id: user } } }, { text: { content: ' ' } });
+  rich_text.push({ text: { content: `Val pidió ajustar esta propuesta: “${comentario.trim().slice(0, 1800)}”` } });
+  await api('comments', { method: 'POST', body: { parent: { page_id: id }, rich_text } });
 }
 
 /** Una pieza con todo su contenido (el guion vive en el cuerpo de la página). */
