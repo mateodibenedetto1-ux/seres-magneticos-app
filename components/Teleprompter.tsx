@@ -37,7 +37,16 @@ export function Teleprompter({ titulo, bloques }: { titulo: string; bloques: { t
     return () => window.removeEventListener('keydown', tecla);
   }, [abierto]);
 
-  const texto = bloques.filter((b) => !b.tipo.startsWith('heading') && b.tipo !== 'divider');
+  // Solo lo que Val dice: las secciones habladas del guion, sin notas de producción.
+  const HABLADO = /^(hook|pico|contexto|moraleja|cta)/i;
+  const NOTA = /^(texto en pantalla|toma|b-roll|tomas|intención|duración)/i;
+  const tieneSecciones = bloques.some((b) => b.tipo.startsWith('heading') && HABLADO.test(b.texto));
+  let seccion = '';
+  const texto = bloques.filter((b) => {
+    if (b.tipo.startsWith('heading')) { seccion = b.texto; return false; }
+    if (b.tipo === 'divider' || NOTA.test(b.texto.trim())) return false;
+    return tieneSecciones ? HABLADO.test(seccion) : true;
+  });
 
   if (!abierto) {
     return (

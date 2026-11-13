@@ -250,7 +250,10 @@ export async function bloques(pageId: string): Promise<{ tipo: string; texto: st
     for (const b of json.results) {
       const v = b[b.type] ?? {};
       const t = text(v.rich_text);
-      if (t || b.type === 'divider') out.push({ tipo: b.type, texto: t });
+      if (b.type === 'divider') { out.push({ tipo: b.type, texto: '' }); continue; }
+      // Los saltos de línea dentro de un bloque se tratan como párrafos separados
+      // (así el teleprompter puede dejar fuera las notas de producción).
+      for (const linea of t.split('\n')) if (linea.trim()) out.push({ tipo: b.type, texto: linea.trim() });
     }
     cursor = json.has_more ? json.next_cursor : undefined;
   } while (cursor);
